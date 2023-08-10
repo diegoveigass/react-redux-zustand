@@ -2,22 +2,24 @@ import { ChevronDown, MessageCircle } from 'lucide-react'
 import { Header } from '../components/Header'
 import { Video } from '../components/Video'
 import { Module } from '../components/Module'
-import { useAppDispatch, useAppSelector } from '../store'
-import { loadCourse, useCurrentLesson } from '../store/slices/player'
 import { useEffect } from 'react'
 import { Lesson } from '../components/Lesson'
+import { useCurrentLesson, useStore } from '../zustand-store'
 
 export function Player() {
-  const dispatch = useAppDispatch()
-  const modules = useAppSelector((state) => state.player.course?.modules)
-
-  const isCourseLoading = useAppSelector((state) => state.player.isLoading)
+  const { course, load, isLoading } = useStore((state) => {
+    return {
+      course: state.course,
+      load: state.load,
+      isLoading: state.isLoading,
+    }
+  })
 
   const { currentLesson } = useCurrentLesson()
 
   useEffect(() => {
-    dispatch(loadCourse())
-  }, [dispatch])
+    load()
+  }, [])
 
   useEffect(() => {
     if (currentLesson) {
@@ -41,8 +43,8 @@ export function Player() {
             <Video />
           </div>
           <aside className="absolute top-0 bottom-0 right-0 w-80 border-l divide-y-2 divide-zinc-900 border-zinc-800 bg-zinc-900 overflow-y-scroll scrollbar-thin scrollbar-track-zinc-950 scrollbar-thumb-zinc-800">
-            {!isCourseLoading && modules ? (
-              modules.map((module, index) => (
+            {!isLoading && course?.modules ? (
+              course.modules.map((module, index) => (
                 <Module
                   key={module.id}
                   moduleIndex={index}
